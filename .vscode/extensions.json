@@ -1,0 +1,30 @@
+{
+  "recommendations": [
+    // Solidity
+    "NomicFoundation.hardhat-solidity",
+    //"JuanBlanco.solidity",
+
+    // TypeScript / React
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "dsznajder.es7-react-js-snippets",
+
+    // Tailwind (future-proof)
+    "bradlc.vscode-tailwindcss",
+
+    // Imports & Paths
+    "christian-kohler.path-intellisense",
+
+    // REST / API testing
+    "humao.rest-client",
+
+    // Markdown
+    "yzhang.markdown-all-in-one",
+
+    // Better JSON
+    "richie5um2.vscode-sort-json",
+
+    // Error Lens
+    "usernamehw.errorlens"
+  ]
+}

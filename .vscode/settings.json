@@ -1,0 +1,128 @@
+{
+  // =========================
+  // FONT & READABILITY
+  // =========================
+  "editor.fontFamily": "JetBrains Mono, Cascadia Code, Fira Code, Consolas, monospace",
+  "editor.fontSize": 18,
+  "editor.lineHeight": 26,
+  "editor.fontLigatures": true,
+  "editor.fontWeight": "400",
+  "editor.letterSpacing": 0.3,
+
+  // =========================
+  // VISUAL COMFORT
+  // =========================
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.cursorBlinking": "smooth",
+  "editor.renderLineHighlight": "gutter",
+  "editor.guides.indentation": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.minimap.enabled": false,
+  "workbench.tree.indent": 16,
+  "breadcrumbs.enabled": false,
+
+  // =========================
+  // TYPESCRIPT / JAVASCRIPT
+  // =========================
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "always"
+  },
+
+  // =========================
+  // FORMATTERS
+  // =========================
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  "[solidity]": {
+    "editor.defaultFormatter": "NomicFoundation.hardhat-solidity"
+  },
+
+  // =========================
+  // ESLINT
+  // =========================
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+
+  // =========================
+  // SOLIDITY
+  // =========================
+  "solidity.formatter": "forge",
+  "solidity.compileUsingRemoteVersion": "latest",
+
+  // =========================
+  // FILE EXCLUSIONS
+  // =========================
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/artifacts": true,
+    "**/cache": true,
+    "**/coverage": true,
+    "**/.turbo": true,
+    "**/.next": true,
+    "**/dist": true
+  },
+
+  // =========================
+  // SEARCH EXCLUSIONS
+  // =========================
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/artifacts": true,
+    "**/cache": true,
+    "**/coverage": true,
+    "**/dist": true
+  },
+
+  // =========================
+  // TERMINAL
+  // =========================
+  "terminal.integrated.fontFamily": "JetBrains Mono",
+  "terminal.integrated.fontSize": 15,
+  "terminal.integrated.lineHeight": 1.3,
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.smoothScrolling": true,
+
+  // =========================
+  // PNPM
+  // =========================
+  "npm.packageManager": "pnpm",
+
+  // =========================
+  // GIT
+  // =========================
+  "git.autofetch": true,
+
+  // =========================
+  // PERFORMANCE
+  // =========================
+  "editor.scrollBeyondLastLine": false
+}
