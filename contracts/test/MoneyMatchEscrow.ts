@@ -1,16 +1,16 @@
-import { time, loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
+import { loadFixture, time } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
 
 describe("MoneyMatchEscrow", function () {
   async function deployFixture() {
-    const [challenger, opponent, outsider, attackerOwner] = await hre.ethers.getSigners();
+    const [challenger, opponent, outsider, attackerOwner] = await (hre.ethers as any).getSigners();
 
     const escrowFactory = await hre.ethers.getContractFactory("MoneyMatchEscrow");
     const escrow = await escrowFactory.deploy();
 
     const attackerFactory = await hre.ethers.getContractFactory("RefundReentrancyAttacker");
-    const attacker = await attackerFactory.connect(attackerOwner).deploy(await escrow.getAddress());
+    const attacker = await attackerFactory.connect(attackerOwner).deploy(await (escrow as any).getAddress());
 
     return { escrow, attacker, challenger, opponent, outsider, attackerOwner };
   }
@@ -20,7 +20,7 @@ describe("MoneyMatchEscrow", function () {
     const stake = hre.ethers.parseEther("1");
 
     await expect(
-      escrow.connect(challenger).createMatch(stake, "https://replays.example/match-1", { value: stake })
+      escrow.connect(challenger).createMatch(stake, { value: stake })
     )
       .to.emit(escrow, "MatchCreated")
       .withArgs(0, challenger.address, stake);
@@ -29,7 +29,7 @@ describe("MoneyMatchEscrow", function () {
       .to.emit(escrow, "MatchJoined")
       .withArgs(0, opponent.address);
 
-    await expect(() => escrow.connect(challenger).confirmDefeat(0, opponent.address)).to.changeEtherBalances(
+    await expect(() => escrow.connect(challenger).confirmDefeat(0, opponent.address, "https://replays.example/match-1")).to.changeEtherBalances(
       [challenger, opponent],
       [0n, stake * 2n]
     );
@@ -42,7 +42,7 @@ describe("MoneyMatchEscrow", function () {
     const { escrow, challenger, opponent } = await loadFixture(deployFixture);
     const stake = hre.ethers.parseEther("0.5");
 
-    await escrow.connect(challenger).createMatch(stake, "https://replays.example/match-2", { value: stake });
+    await escrow.connect(challenger).createMatch(stake, { value: stake });
     await escrow.connect(opponent).joinMatch(0, { value: stake });
 
     await time.increase(48 * 60 * 60 + 1);
@@ -62,22 +62,22 @@ describe("MoneyMatchEscrow", function () {
     const { escrow, challenger, opponent, outsider } = await loadFixture(deployFixture);
     const stake = hre.ethers.parseEther("1");
 
-    await escrow.connect(challenger).createMatch(stake, "https://replays.example/match-3", { value: stake });
+    await escrow.connect(challenger).createMatch(stake, { value: stake });
     await escrow.connect(opponent).joinMatch(0, { value: stake });
 
-    await expect(escrow.connect(outsider).confirmDefeat(0, challenger.address)).to.be.revertedWithCustomError(
+    await expect(escrow.connect(outsider).confirmDefeat(0, challenger.address, "https://replays.example/match-1")).to.be.revertedWithCustomError(
       escrow,
       "Unauthorized"
     );
 
-    await expect(escrow.connect(challenger).confirmDefeat(0, challenger.address)).to.be.revertedWithCustomError(
+    await expect(escrow.connect(challenger).confirmDefeat(0, challenger.address, "https://replays.example/match-1")).to.be.revertedWithCustomError(
       escrow,
       "InvalidWinner"
     );
 
-    await escrow.connect(challenger).confirmDefeat(0, opponent.address);
+    await escrow.connect(challenger).confirmDefeat(0, opponent.address, "https://replays.example/match-1");
 
-    await expect(escrow.connect(opponent).confirmDefeat(0, challenger.address)).to.be.revertedWithCustomError(
+    await expect(escrow.connect(opponent).confirmDefeat(0, challenger.address, "https://replays.example/match-1")).to.be.revertedWithCustomError(
       escrow,
       "InvalidState"
     );
@@ -87,7 +87,7 @@ describe("MoneyMatchEscrow", function () {
     const { escrow, challenger, opponent } = await loadFixture(deployFixture);
     const stake = hre.ethers.parseEther("0.2");
 
-    await escrow.connect(challenger).createMatch(stake, "https://replays.example/match-4", { value: stake });
+    await escrow.connect(challenger).createMatch(stake, { value: stake });
     await escrow.connect(opponent).joinMatch(0, { value: stake });
 
     await time.increase(48 * 60 * 60 + 1);
@@ -102,7 +102,7 @@ describe("MoneyMatchEscrow", function () {
     const { escrow, attacker, challenger, attackerOwner } = await loadFixture(deployFixture);
     const stake = hre.ethers.parseEther("0.4");
 
-    await escrow.connect(challenger).createMatch(stake, "https://replays.example/match-5", { value: stake });
+    await escrow.connect(challenger).createMatch(stake, { value: stake });
     await attacker.connect(attackerOwner).joinAsOpponent(0, { value: stake });
 
     await time.increase(48 * 60 * 60 + 1);

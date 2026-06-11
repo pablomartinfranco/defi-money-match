@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
 import { BrowserProvider, Contract, ethers } from "ethers";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { ESCROW_ABI, MATCH_STATE_LABELS, REFUND_DELAY_SECONDS } from "./escrow";
 
@@ -23,12 +23,16 @@ declare global {
 }
 
 function App() {
+  // const ENV_CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS ?? "";
+  // const ENV_CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+  const ENV_CONTRACT_ADDRESS = "0x24C9D7a9AF86905A81262a07ca41B69437C99804";
+  console.log("Using contract address:", import.meta.env.VITE_CONTRACT_ADDRESS ?? "");
+  
   const [provider, setProvider] = useState<BrowserProvider | null>(null);
   const [walletAddress, setWalletAddress] = useState("");
-  const [contractAddress, setContractAddress] = useState(import.meta.env.VITE_ESCROW_ADDRESS ?? "");
+  const [contractAddress, setContractAddress] = useState(ENV_CONTRACT_ADDRESS);
 
   const [createStake, setCreateStake] = useState("0.01");
-  const [createReplayUrl, setCreateReplayUrl] = useState("");
   const [joinMatchId, setJoinMatchId] = useState("0");
   const [confirmMatchId, setConfirmMatchId] = useState("0");
   const [winnerAddress, setWinnerAddress] = useState("");
@@ -132,7 +136,7 @@ function App() {
   const createMatch = async () => {
     await withWrite(async (writeContract) => {
       const stake = ethers.parseEther(createStake);
-      const tx = await writeContract.createMatch(stake, createReplayUrl, { value: stake });
+      const tx = await writeContract.createMatch(stake, { value: stake });
       await tx.wait();
     });
   };
@@ -148,7 +152,7 @@ function App() {
 
   const confirmDefeat = async () => {
     await withWrite(async (writeContract) => {
-      const tx = await writeContract.confirmDefeat(BigInt(confirmMatchId), winnerAddress);
+      const tx = await writeContract.confirmDefeat(BigInt(confirmMatchId), winnerAddress, replayUrl);
       await tx.wait();
     });
   };
@@ -193,19 +197,21 @@ function App() {
 
       <section>
         <button onClick={connectWallet}>Connect MetaMask</button>
-        <p>Connected wallet: {walletAddress || "Not connected"}</p>
+        <p>Wallet: {walletAddress || "Not connected"}</p>
       </section>
 
-      <section>
-        <h2>Contract</h2>
-        <input value={contractAddress} onChange={(e) => setContractAddress(e.target.value)} placeholder="0x..." />
-      </section>
+      {!ENV_CONTRACT_ADDRESS && (
+        <section>
+          <h2>Contract</h2>
+          <input value={contractAddress} onChange={(e) => setContractAddress(e.target.value)} placeholder="0x..." />
+        </section>
+      )}
 
       <section>
         <h2>Create Match</h2>
         <input value={createStake} onChange={(e) => setCreateStake(e.target.value)} placeholder="Stake in ETH" />
-        <input value={createReplayUrl} onChange={(e) => setCreateReplayUrl(e.target.value)} placeholder="Replay URL" />
         <button onClick={createMatch}>Create + Deposit</button>
+        <p>Match: {contractAddress || "Not configured"}</p>
       </section>
 
       <section>
@@ -218,6 +224,7 @@ function App() {
         <h2>Confirm Defeat</h2>
         <input value={confirmMatchId} onChange={(e) => setConfirmMatchId(e.target.value)} placeholder="Match ID" />
         <input value={winnerAddress} onChange={(e) => setWinnerAddress(e.target.value)} placeholder="Winner Address" />
+        <input value={replayUrl} onChange={(e) => setReplayUrl(e.target.value)} placeholder="Replay URL" />
         <button onClick={confirmDefeat}>Confirm Defeat</button>
       </section>
 
@@ -248,7 +255,12 @@ function App() {
         )}
       </section>
 
-      <p>{feedback}</p>
+      {feedback && (
+        <section className="feedback-section">
+          <h2>Feedback Logs</h2>
+          <pre className="feedback">{feedback}</pre>
+        </section>
+      )}
     </main>
   );
 }

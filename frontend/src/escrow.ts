@@ -1,7 +1,7 @@
 export const ESCROW_ABI = [
-  "function createMatch(uint256 stakeAmount, string replayUrl) payable returns (uint256)",
+  "function createMatch(uint256 stakeAmount) payable returns (uint256)",
   "function joinMatch(uint256 matchId) payable",
-  "function confirmDefeat(uint256 matchId, address winner)",
+  "function confirmDefeat(uint256 matchId, address winner, string replayUrl)",
   "function enableRefund(uint256 matchId)",
   "function claimRefund(uint256 matchId)",
   "function getMatch(uint256 matchId) view returns (tuple(address challenger, address opponent, uint256 stakeAmount, uint256 activationTimestamp, bool challengerRefunded, bool opponentRefunded, uint8 state))",

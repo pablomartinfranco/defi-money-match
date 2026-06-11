@@ -43,7 +43,7 @@ contract MoneyMatchEscrow is ReentrancyGuard {
     event RefundEnabled(uint256 indexed matchId);
     event RefundClaimed(uint256 indexed matchId, address indexed player, uint256 amount);
 
-    function createMatch(uint256 stakeAmount, string calldata replayUrl) external payable returns (uint256 matchId) {
+    function createMatch(uint256 stakeAmount) external payable returns (uint256 matchId) {
         if (stakeAmount == 0) revert InvalidStake();
         if (msg.value != stakeAmount) revert InvalidDeposit();
 
@@ -60,7 +60,6 @@ contract MoneyMatchEscrow is ReentrancyGuard {
         });
 
         emit MatchCreated(matchId, msg.sender, stakeAmount);
-        emit ReplayRegistered(matchId, replayUrl);
     }
 
     function joinMatch(uint256 matchId) external payable {
@@ -77,7 +76,7 @@ contract MoneyMatchEscrow is ReentrancyGuard {
         emit MatchJoined(matchId, msg.sender);
     }
 
-    function confirmDefeat(uint256 matchId, address winner) external nonReentrant {
+    function confirmDefeat(uint256 matchId, address winner, string calldata replayUrl) external nonReentrant {
         Match storage matchInfo = _getMatch(matchId);
 
         if (matchInfo.state != MatchState.Active) revert InvalidState(matchInfo.state);
@@ -91,6 +90,7 @@ contract MoneyMatchEscrow is ReentrancyGuard {
         if (!success) revert TransferFailed();
 
         emit DefeatConfirmed(matchId, msg.sender, winner);
+        emit ReplayRegistered(matchId, replayUrl);
     }
 
     function enableRefund(uint256 matchId) external {
