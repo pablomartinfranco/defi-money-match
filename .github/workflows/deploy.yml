@@ -18,7 +18,7 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'  # Changed from 18 to 22
       
       - name: Install dependencies
         run: cd frontend && npm install
