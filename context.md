@@ -58,35 +58,54 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'  # Changed from 18 to 22
-      
+          node-version: 22
+
+      - name: Enable pnpm
+        run: corepack enable
+
       - name: Install dependencies
-        run: cd frontend && npm install
-      
+        run: |
+          cd frontend
+          pnpm install --frozen-lockfile
+
       - name: Build
-        run: cd frontend && npm run build
-      
+        run: |
+          cd frontend
+          pnpm build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'frontend/dist'
-      
+          path: frontend/dist
+
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v4
 ```
 
 
@@ -739,6 +758,7 @@ declare global {
 }
 
 function App() {
+  const VISIBLE_REFUND = false;
   // const ENV_CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS ?? "";
   // const ENV_CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
   const ENV_CONTRACT_ADDRESS = "0x24C9D7a9AF86905A81262a07ca41B69437C99804";
@@ -944,14 +964,16 @@ function App() {
         <button onClick={confirmDefeat}>Confirm Defeat</button>
       </section>
 
-      <section>
-        <h2>Refund</h2>
-        <input value={refundMatchId} onChange={(e) => setRefundMatchId(e.target.value)} placeholder="Match ID" />
-        <div className="actions-row">
-          <button onClick={enableRefund}>Enable Refund</button>
-          <button onClick={claimRefund}>Claim Refund</button>
-        </div>
-      </section>
+      {VISIBLE_REFUND && (
+        <section>
+          <h2>Refund</h2>
+          <input value={refundMatchId} onChange={(e) => setRefundMatchId(e.target.value)} placeholder="Match ID" />
+          <div className="actions-row">
+            <button onClick={enableRefund}>Enable Refund</button>
+            <button onClick={claimRefund}>Claim Refund</button>
+          </div>
+        </section>
+      )}
 
       <section>
         <h2>Match Status</h2>

@@ -39,6 +39,8 @@ function App() {
   const [winnerAddress, setWinnerAddress] = useState("");
   const [refundMatchId, setRefundMatchId] = useState("0");
   const [statusMatchId, setStatusMatchId] = useState("0");
+  const [createdMatchId, setCreatedMatchId] = useState<string>("");
+  const [joinedMatchId, setJoinedMatchId] = useState<string>("");
 
   const [matchData, setMatchData] = useState<MatchData | null>(null);
   const [replayUrl, setReplayUrl] = useState("");
@@ -134,20 +136,70 @@ function App() {
     }
   };
 
+  // const createMatch = async () => {
+  //   await withWrite(async (writeContract) => {
+  //     const stake = ethers.parseEther(createStake);
+  //     const tx = await writeContract.createMatch(stake, { value: stake });
+  //     await tx.wait();
+  //   });
+  // };
+
   const createMatch = async () => {
     await withWrite(async (writeContract) => {
       const stake = ethers.parseEther(createStake);
       const tx = await writeContract.createMatch(stake, { value: stake });
-      await tx.wait();
+
+      const receipt = await tx.wait();
+
+      const event = receipt.logs
+        .map((log: any) => {
+          try {
+            return writeContract.interface.parseLog(log);
+          } catch {
+            return null;
+          }
+        })
+        .find((e: any) => e?.name === "MatchCreated");
+
+      const matchId = event?.args?.matchId?.toString();
+
+      setCreatedMatchId(matchId);
+      setFeedback(`Match created! ID: ${matchId}`);
     });
   };
+
+  // const joinMatch = async () => {
+  //   await withWrite(async (writeContract) => {
+  //     const id = BigInt(joinMatchId);
+  //     const data = await writeContract.getMatch(id);
+  //     const tx = await writeContract.joinMatch(id, { value: data.stakeAmount });
+  //     await tx.wait();
+  //   });
+  // };
 
   const joinMatch = async () => {
     await withWrite(async (writeContract) => {
       const id = BigInt(joinMatchId);
+
       const data = await writeContract.getMatch(id);
       const tx = await writeContract.joinMatch(id, { value: data.stakeAmount });
-      await tx.wait();
+
+      const receipt = await tx.wait();
+
+      const event = receipt.logs
+        .map((log: any) => {
+          try {
+            return writeContract.interface.parseLog(log);
+          } catch {
+            return null;
+          }
+        })
+        .find((e: any) => e?.name === "MatchJoined");
+
+      const joinedId = event?.args?.matchId?.toString();
+
+      setJoinedMatchId(joinedId);
+      setFeedback(`Joined match ID: ${joinedId}`);
     });
   };
 
@@ -197,28 +249,30 @@ function App() {
       <h1>MoneyMatch Escrow</h1>
 
       <section>
+        <h2>Contract</h2>
+        {!ENV_CONTRACT_ADDRESS && (
+          <input value={contractAddress} onChange={(e) => setContractAddress(e.target.value)} placeholder="0x..." />
+        )}
+        {ENV_CONTRACT_ADDRESS && (
+          <p>Address: {ENV_CONTRACT_ADDRESS}</p>
+        )}
         <button onClick={connectWallet}>Connect MetaMask</button>
         <p>Wallet: {walletAddress || "Not connected"}</p>
       </section>
-
-      {!ENV_CONTRACT_ADDRESS && (
-        <section>
-          <h2>Contract</h2>
-          <input value={contractAddress} onChange={(e) => setContractAddress(e.target.value)} placeholder="0x..." />
-        </section>
-      )}
 
       <section>
         <h2>Create Match</h2>
         <input value={createStake} onChange={(e) => setCreateStake(e.target.value)} placeholder="Stake in ETH" />
         <button onClick={createMatch}>Create + Deposit</button>
         <p>Match: {contractAddress || "Not configured"}</p>
+        <p>Created Match ID: {createdMatchId || "-"}</p>
       </section>
 
       <section>
         <h2>Join Match</h2>
         <input value={joinMatchId} onChange={(e) => setJoinMatchId(e.target.value)} placeholder="Match ID" />
         <button onClick={joinMatch}>Join + Deposit</button>
+        <p>Joined Match ID: {joinedMatchId || "-"}</p>
       </section>
 
       <section>
