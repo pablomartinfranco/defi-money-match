@@ -23,7 +23,7 @@ declare global {
 }
 
 function App() {
-  const IS_VISIBLE_REFUND = false;
+  const VISIBLE_REFUND = false;
   // const ENV_CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS ?? "";
   // const ENV_CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
   const ENV_CONTRACT_ADDRESS = "0x24C9D7a9AF86905A81262a07ca41B69437C99804";
@@ -229,7 +229,7 @@ function App() {
         <button onClick={confirmDefeat}>Confirm Defeat</button>
       </section>
 
-      {!IS_VISIBLE_REFUND && (
+      {VISIBLE_REFUND && (
         <section>
           <h2>Refund</h2>
           <input value={refundMatchId} onChange={(e) => setRefundMatchId(e.target.value)} placeholder="Match ID" />
