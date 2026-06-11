@@ -216,7 +216,7 @@ function App() {
       <h1>MoneyMatch Escrow</h1>
 
       <section>
-        <h2>Contract{":" + ENV_CONTRACT_ADDRESS || "Not connected"}</h2>
+        <h2>Contract {ENV_CONTRACT_ADDRESS || ""}</h2>
         {!ENV_CONTRACT_ADDRESS && (
           <input value={contractAddress} onChange={(e) => setContractAddress(e.target.value)} placeholder="0x..." />
         )}
