@@ -93,9 +93,11 @@ function App() {
 
   const loadMatch = async () => {
     if (!contract) return;
-
+    if (!statusMatchId) return;
+    
     const id = BigInt(statusMatchId);
     const data = await contract.getMatch(id);
+    console.log("Loaded match raw:", data);
 
     setMatchData({
       challenger: data.challenger,
@@ -106,6 +108,7 @@ function App() {
       opponentRefunded: data.opponentRefunded,
       state: Number(data.state),
     });
+    console.log("Parsed match state:", Number(data.state));
 
     const filter = contract.filters.ReplayRegistered(id);
     const events = await contract.queryFilter(filter, 0, "latest");
@@ -267,9 +270,10 @@ function App() {
         <button onClick={loadMatch}>Load Match</button>
         {matchData && (
           <div>
-            <p>State: {MATCH_STATE_LABELS[matchData.state]}</p>
+            {/* <p>State: {MATCH_STATE_LABELS[matchData.state]}</p> */}
+            <p>State: {MATCH_STATE_LABELS[matchData.state] ?? `Unknown (${matchData.state})`}</p>
             <p>Stake: {ethers.formatEther(matchData.stakeAmount)} ETH</p>
-            <p>Replay URL (from logs): {replayUrl || "Not found"}</p>
+            <p>Replay URL (from logs): {replayUrl ?? "Not found"}</p>
             <p>Resolved: {matchData.state === 2 ? "Yes" : "No"}</p>
             <p>Can claim refund: {canClaimRefund ? "Yes" : "No"}</p>
             <p>
