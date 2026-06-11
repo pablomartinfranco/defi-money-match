@@ -2,6 +2,9 @@
 
 ```text
 .
+├── .github
+│   └── workflows
+│       └── deploy.yml
 ├── contracts
 │   ├── scripts
 │   │   └── deploy.ts
@@ -38,11 +41,60 @@
 # FILE CONTENTS
 
 
+# FILE: .github
+
+```plain
+# ERROR READING FILE: [Errno 13] Permission denied: '.github'
+```
+
+
+# FILE: .github\workflows\deploy.yml
+
+```plain
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'  # Changed from 18 to 22
+      
+      - name: Install dependencies
+        run: cd frontend && npm install
+      
+      - name: Build
+        run: cd frontend && npm run build
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'frontend/dist'
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v3
+```
+
+
 # FILE: contracts\.env
 
 ```plain
 PRIVATE_KEY=7a7b7d887b625fbe24036ca17c4efa639758465473f3ef227416cfaa532cdf34
-SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/xxxxxxxx
+SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
 ```
 
 
@@ -552,11 +604,13 @@ export default defineConfig([
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://pablomartinfranco.github.io/defi-money-match/",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "ethers": "^6",
@@ -572,6 +626,7 @@ export default defineConfig([
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
+    "gh-pages": "^6.3.0",
     "globals": "^17.6.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
@@ -685,7 +740,8 @@ declare global {
 
 function App() {
   // const ENV_CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS ?? "";
-  const ENV_CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+  // const ENV_CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+  const ENV_CONTRACT_ADDRESS = "0x24C9D7a9AF86905A81262a07ca41B69437C99804";
   console.log("Using contract address:", import.meta.env.VITE_CONTRACT_ADDRESS ?? "");
   
   const [provider, setProvider] = useState<BrowserProvider | null>(null);
@@ -1192,11 +1248,12 @@ createRoot(document.getElementById('root')!).render(
 # FILE: frontend\vite.config.ts
 
 ```plain
-import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/defi-money-match/',
   plugins: [react()],
 })
 

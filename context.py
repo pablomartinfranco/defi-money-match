@@ -27,6 +27,7 @@ exclude_names = {
     "artifacts",
     "cache",
     "research",
+    "dist",
 }
 
 root = Path(".")

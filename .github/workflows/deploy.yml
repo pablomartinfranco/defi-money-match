@@ -5,32 +5,48 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'  # Changed from 18 to 22
-      
+          node-version: 22
+
       - name: Install dependencies
-        run: cd frontend && npm install
-      
+        run: |
+          cd frontend
+          npm ci
+
       - name: Build
-        run: cd frontend && npm run build
-      
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'frontend/dist'
-      
+          path: frontend/dist
+
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v4
