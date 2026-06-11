@@ -16,17 +16,17 @@ MoneyMatch Escrow replaces trusted middlemen with an Ethereum smart contract:
 
 ## Architecture
 
-1. Challenger creates a match with stake and replay URL, depositing ETH.
-2. Replay URL is emitted as an event (not stored in state).
-3. Opponent joins with the same stake.
-4. Match becomes active.
-5. Loser confirms defeat and names the winner.
-6. Winner receives the full escrow amount.
+1. Challenger creates a match with stake, depositing ETH.
+2. Opponent joins with the same stake.
+3. Match becomes active.
+4. Loser confirms defeat and names the winner.
+5. Winner receives the full escrow amount.
+6. Replay URL is emitted as an event (not stored in state).
 7. If no confirmation occurs after 48 hours from activation, refund mode can be enabled and each player withdraws only their original stake.
 
 ```mermaid
 flowchart TD
-  A[Create Match + Deposit + Replay Event] --> B[Join Match + Deposit]
+  A[Create Match + Deposit] --> B[Join Match + Deposit]
   B --> C[Active Match]
   C --> D[Loser Confirms Defeat]
   D --> E[Winner Paid Full Escrow]
@@ -55,16 +55,6 @@ flowchart TD
 - **Reentrancy:** protected with `ReentrancyGuard` and CEI ordering.
 - **Access control:** participant-only actions enforced by strict checks.
 - **State safety:** explicit state machine prevents duplicate resolution and double withdrawals.
-
-## Why Web3?
-
-Compared to centralized databases, Ethereum offers:
-
-- transparent fund custody,
-- public auditability,
-- immutable match records,
-- censorship resistance,
-- trust minimization via smart contracts.
 
 ## Future Improvements
 
@@ -140,9 +130,9 @@ echo 'VITE_ESCROW_ADDRESS=0xYourDeployedAddress' > frontend/.env.local
 
 ## Smart Contract Behavior Summary
 
-- `createMatch(stake, replayUrl)` with exact `msg.value == stake`
+- `createMatch(stake)` with exact `msg.value == stake`
 - `joinMatch(matchId)` with exact same stake
-- `confirmDefeat(matchId, winner)` callable only by loser participant
+- `confirmDefeat(matchId, winner, replayUrl)` callable only by loser participant
 - `enableRefund(matchId)` after 48h from activation
 - `claimRefund(matchId)` lets each participant recover only own original deposit
 

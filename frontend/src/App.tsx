@@ -23,7 +23,7 @@ declare global {
 }
 
 function App() {
-  const VISIBLE_REFUND = false;
+  const VISIBLE_REFUND = true;
   // const ENV_CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS ?? "";
   // const ENV_CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
   const ENV_CONTRACT_ADDRESS = "0x24C9D7a9AF86905A81262a07ca41B69437C99804";
@@ -94,7 +94,7 @@ function App() {
   const loadMatch = async () => {
     if (!contract) return;
     if (!statusMatchId) return;
-    
+
     const id = BigInt(statusMatchId);
     const data = await contract.getMatch(id);
     console.log("Loaded match raw:", data);
