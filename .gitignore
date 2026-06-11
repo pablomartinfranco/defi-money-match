@@ -14,6 +14,7 @@ contracts/typechain-types/
 .env
 .env.*
 !.env.example
+context.md
 
 # logs
 *.log
