@@ -29,15 +29,18 @@ jobs:
         with:
           node-version: 22
 
+      - name: Enable pnpm
+        run: corepack enable
+
       - name: Install dependencies
         run: |
           cd frontend
-          npm ci
+          pnpm install --frozen-lockfile
 
       - name: Build
         run: |
           cd frontend
-          npm run build
+          pnpm build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
