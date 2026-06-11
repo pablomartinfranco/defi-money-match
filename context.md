@@ -774,6 +774,8 @@ function App() {
   const [winnerAddress, setWinnerAddress] = useState("");
   const [refundMatchId, setRefundMatchId] = useState("0");
   const [statusMatchId, setStatusMatchId] = useState("0");
+  const [createdMatchId, setCreatedMatchId] = useState<string>("");
+  const [joinedMatchId, setJoinedMatchId] = useState<string>("");
 
   const [matchData, setMatchData] = useState<MatchData | null>(null);
   const [replayUrl, setReplayUrl] = useState("");
@@ -869,11 +871,21 @@ function App() {
     }
   };
 
+  type ParsedLog = { topics: ReadonlyArray<string>; data: string; };
+  type Event = { name: string; };
+
   const createMatch = async () => {
     await withWrite(async (writeContract) => {
       const stake = ethers.parseEther(createStake);
       const tx = await writeContract.createMatch(stake, { value: stake });
-      await tx.wait();
+      const receipt = await tx.wait();
+
+      const parsed = receipt?.logs
+        .map((log: ParsedLog) => writeContract.interface.parseLog(log))
+        .find((e: Event) => e?.name === "MatchCreated");
+      const matchId = parsed?.args?.matchId?.toString();
+      setCreatedMatchId(matchId);
+      setFeedback(`Match created! ID: ${matchId}`);
     });
   };
 
@@ -882,7 +894,14 @@ function App() {
       const id = BigInt(joinMatchId);
       const data = await writeContract.getMatch(id);
       const tx = await writeContract.joinMatch(id, { value: data.stakeAmount });
-      await tx.wait();
+      const receipt = await tx.wait();
+
+      const parsed = receipt?.logs
+        .map((log: ParsedLog) => writeContract.interface.parseLog(log))
+        .find((e: Event) => e?.name === "MatchJoined");
+      const joinedId = parsed?.args?.matchId?.toString();
+      setJoinedMatchId(joinedId);
+      setFeedback(`Joined match ID: ${joinedId}`);
     });
   };
 
@@ -932,28 +951,30 @@ function App() {
       <h1>MoneyMatch Escrow</h1>
 
       <section>
-        <button onClick={connectWallet}>Connect MetaMask</button>
-        <p>Wallet: {walletAddress || "Not connected"}</p>
-      </section>
-
-      {!ENV_CONTRACT_ADDRESS && (
-        <section>
-          <h2>Contract</h2>
+        <h2>Contract {ENV_CONTRACT_ADDRESS ?? ""}</h2>
+        {!ENV_CONTRACT_ADDRESS && (
           <input value={contractAddress} onChange={(e) => setContractAddress(e.target.value)} placeholder="0x..." />
-        </section>
-      )}
+        )}
+        <button onClick={connectWallet}>Connect MetaMask</button>
+        <p>Wallet: {walletAddress ?? "Not connected"}</p>
+      </section>
 
       <section>
         <h2>Create Match</h2>
         <input value={createStake} onChange={(e) => setCreateStake(e.target.value)} placeholder="Stake in ETH" />
         <button onClick={createMatch}>Create + Deposit</button>
-        <p>Match: {contractAddress || "Not configured"}</p>
+        {createdMatchId && (
+          <p>Created Match ID: {createdMatchId}</p>
+        )}
       </section>
 
       <section>
         <h2>Join Match</h2>
         <input value={joinMatchId} onChange={(e) => setJoinMatchId(e.target.value)} placeholder="Match ID" />
         <button onClick={joinMatch}>Join + Deposit</button>
+        {joinedMatchId && (
+          <p>Joined Match ID: {joinedMatchId}</p>
+        )}
       </section>
 
       <section>
