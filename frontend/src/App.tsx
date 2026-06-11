@@ -228,15 +228,18 @@ function App() {
         <h2>Create Match</h2>
         <input value={createStake} onChange={(e) => setCreateStake(e.target.value)} placeholder="Stake in ETH" />
         <button onClick={createMatch}>Create + Deposit</button>
-        <p>Match: {contractAddress || "Not configured"}</p>
-        <p>Created Match ID: {createdMatchId || "-"}</p>
+        {createdMatchId && (
+          <p>Created Match ID: {createdMatchId}</p>
+        )}
       </section>
 
       <section>
         <h2>Join Match</h2>
         <input value={joinMatchId} onChange={(e) => setJoinMatchId(e.target.value)} placeholder="Match ID" />
         <button onClick={joinMatch}>Join + Deposit</button>
-        <p>Joined Match ID: {joinedMatchId || "-"}</p>
+        {joinedMatchId && (
+          <p>Joined Match ID: {joinedMatchId}</p>
+        )}
       </section>
 
       <section>
