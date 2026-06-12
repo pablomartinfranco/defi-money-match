@@ -2,19 +2,7 @@
 
 A Web3 MVP for trust-minimized gaming wagers on Ethereum.
 
-## Problem Definition
-
-Current gaming money matches often rely on trust, intermediaries, and private agreements. That leads to withheld funds, fraud risk, and low transparency.
-
-## Value Proposition
-
-MoneyMatch Escrow replaces trusted middlemen with an Ethereum smart contract:
-
-- funds are held by code,
-- match lifecycle is publicly auditable,
-- payouts and refunds follow deterministic on-chain rules.
-
-## Architecture
+## Normal workflow
 
 1. Challenger creates a match with stake, depositing ETH.
 2. Opponent joins with the same stake.
